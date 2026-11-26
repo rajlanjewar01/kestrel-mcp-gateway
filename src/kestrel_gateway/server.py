@@ -6,7 +6,7 @@ import uuid
 from typing import Any
 
 from mcp.server.lowlevel import Server
-from mcp.types import TextContent, Tool
+from mcp.types import CallToolRequestParams, CallToolResult, ListToolsResult, TextContent, Tool
 
 from kestrel_gateway.auth.approval import ApprovalGate
 from kestrel_gateway.auth.composition_guard import CompositionGuard
@@ -207,14 +207,20 @@ class KestrelGateway:
         self._caller = caller
 
     def _register_tools(self) -> None:
-        @self.server.list_tools()
-        async def list_tools() -> list[Tool]:
-            return [Tool(**td) for td in TOOL_DEFINITIONS]
+        tools = [Tool(**td) for td in TOOL_DEFINITIONS]
+        gateway = self
 
-        @self.server.call_tool()
-        async def call_tool(name: str, arguments: dict[str, Any] | None) -> list[TextContent]:
-            result = await self._handle_tool_call(name, arguments or {})
-            return [TextContent(type="text", text=json.dumps(result, default=str))]
+        async def handle_list_tools(_params):
+            return ListToolsResult(tools=tools)
+
+        async def handle_call_tool(params: CallToolRequestParams):
+            result = await gateway._handle_tool_call(params.name, params.arguments or {})
+            return CallToolResult(
+                content=[TextContent(type="text", text=json.dumps(result, default=str))]
+            )
+
+        self.server.add_request_handler("tools/list", type(None), handle_list_tools)
+        self.server.add_request_handler("tools/call", CallToolRequestParams, handle_call_tool)
 
     async def _handle_tool_call(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         request_id = str(uuid.uuid4())
