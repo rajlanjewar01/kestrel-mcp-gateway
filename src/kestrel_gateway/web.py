@@ -17,7 +17,7 @@ from kestrel_gateway.server import KestrelGateway
 def create_app() -> Starlette:
     settings = load_settings()
     gateway = KestrelGateway(settings)
-    return gateway.server.streamable_http_app()
+    return gateway.server.streamable_http_app(host="0.0.0.0")
 
 
 def start_stubs():
