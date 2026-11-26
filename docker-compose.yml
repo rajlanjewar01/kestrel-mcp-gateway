@@ -1,0 +1,47 @@
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file: .env
+    volumes:
+      - ./kill_switch.json:/app/kill_switch.json
+    depends_on:
+      - wms-stub
+      - tms-stub
+      - ticketing-stub
+      - contracts-stub
+
+  wms-stub:
+    build:
+      context: .
+      dockerfile: Dockerfile.stubs
+    command: python -m stubs.wms_stub
+    ports:
+      - "8081:8081"
+
+  tms-stub:
+    build:
+      context: .
+      dockerfile: Dockerfile.stubs
+    command: python -m stubs.tms_stub
+    ports:
+      - "8082:8082"
+
+  ticketing-stub:
+    build:
+      context: .
+      dockerfile: Dockerfile.stubs
+    command: python -m stubs.ticketing_stub
+    ports:
+      - "8083:8083"
+
+  contracts-stub:
+    build:
+      context: .
+      dockerfile: Dockerfile.stubs
+    command: python -m stubs.contracts_stub
+    ports:
+      - "8084:8084"

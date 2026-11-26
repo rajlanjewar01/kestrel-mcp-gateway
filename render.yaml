@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: kestrel-mcp-gateway
+    runtime: python
+    plan: free
+    buildCommand: pip install -e .
+    startCommand: uvicorn kestrel_gateway.web:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHONPATH
+        value: src
+      - key: WMS_API_KEY
+        value: test-wms-key
+      - key: TMS_CLIENT_ID
+        value: tms-client
+      - key: TMS_CLIENT_SECRET
+        value: tms-secret
+      - key: TICKETING_BEARER_TOKEN
+        value: test-ticket-token
+      - key: WMS_BASE_URL
+        value: http://127.0.0.1:8081
+      - key: TMS_BASE_URL
+        value: http://127.0.0.1:8082
+      - key: TICKETING_BASE_URL
+        value: http://127.0.0.1:8083
+      - key: CONTRACTS_BASE_URL
+        value: http://127.0.0.1:8084
+      - key: RUN_STUBS
+        value: "true"
+      - key: PYTHON_VERSION
+        value: "3.12.0"

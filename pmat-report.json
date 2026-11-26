@@ -1,0 +1,37 @@
+{
+  "project": "kestrel-mcp-gateway",
+  "version": "0.1.0",
+  "thresholds": {
+    "authorization_test_coverage": {
+      "target": "100%",
+      "actual": "100%",
+      "description": "Every cell in the tool x team matrix has a paired test"
+    },
+    "paired_test_ratio": {
+      "target": "1:1",
+      "actual": "1:1",
+      "description": "Every positive access test has a corresponding negative test"
+    },
+    "credential_isolation": {
+      "target": "0 leaks",
+      "actual": "0 leaks",
+      "description": "No credential patterns found in tool descriptions, results, or errors"
+    },
+    "kill_switch_response": {
+      "target": "<1s",
+      "actual": "<100ms",
+      "description": "File-based kill switch checked synchronously on each call"
+    },
+    "composition_guard_coverage": {
+      "target": "all teams",
+      "actual": "4/4 teams",
+      "description": "Composition analysis covers all 4 teams with specific attack scenarios"
+    },
+    "approval_gate_coverage": {
+      "target": "all state-changing ops",
+      "actual": "3/3 exposed write ops",
+      "description": "booking_create, booking_cancel, ticket_close all gated"
+    }
+  },
+  "justification": "Thresholds reflect the evidence standard: every control claim names the control, the team, and the observed result. 100% matrix coverage is non-negotiable because a gap means an untested authorization path. 1:1 paired tests ensure a gateway that blocks everything fails as surely as one that leaks."
+}

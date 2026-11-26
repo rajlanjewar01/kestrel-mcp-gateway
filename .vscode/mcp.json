@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "kestrel-gateway": {
+      "type": "sse",
+      "url": "http://localhost:8080/sse",
+      "headers": {
+        "X-Team": "${env:KESTREL_TEAM}",
+        "X-User-Id": "${env:KESTREL_USER_ID}",
+        "X-Scope": "${env:KESTREL_SCOPE}"
+      }
+    }
+  }
+}
