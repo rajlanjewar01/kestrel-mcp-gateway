@@ -5,7 +5,8 @@ import time
 import uuid
 from typing import Any
 
-from mcp.server.mcpserver import MCPServer
+from mcp.server.lowlevel import Server
+from mcp.types import TextContent, Tool
 
 from kestrel_gateway.auth.approval import ApprovalGate
 from kestrel_gateway.auth.composition_guard import CompositionGuard
@@ -198,7 +199,7 @@ class KestrelGateway:
         self.ticketing = ticketing_client or TicketingClient(settings.ticketing_base_url, settings.ticketing_bearer_token)
         self.contracts = contracts_client or ContractsClient(settings.contracts_base_url)
 
-        self.server = MCPServer("kestrel-gateway")
+        self.server = Server("kestrel-gateway")
         self._caller: CallerIdentity | None = None
         self._register_tools()
 
@@ -206,20 +207,14 @@ class KestrelGateway:
         self._caller = caller
 
     def _register_tools(self) -> None:
-        def make_handler(name: str):
-            async def handler(**kwargs: Any) -> str:
-                result = await self._handle_tool_call(name, kwargs)
-                return json.dumps(result, default=str)
-            handler.__name__ = name
-            handler.__qualname__ = name
-            return handler
+        @self.server.list_tools()
+        async def list_tools() -> list[Tool]:
+            return [Tool(**td) for td in TOOL_DEFINITIONS]
 
-        for td in TOOL_DEFINITIONS:
-            self.server.add_tool(
-                make_handler(td["name"]),
-                name=td["name"],
-                description=td["description"],
-            )
+        @self.server.call_tool()
+        async def call_tool(name: str, arguments: dict[str, Any] | None) -> list[TextContent]:
+            result = await self._handle_tool_call(name, arguments or {})
+            return [TextContent(type="text", text=json.dumps(result, default=str))]
 
     async def _handle_tool_call(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         request_id = str(uuid.uuid4())
