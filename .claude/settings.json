@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "kestrel-gateway": {
+      "type": "streamable-http",
+      "url": "https://kestrel-mcp-gateway-1.onrender.com/mcp"
+    }
+  }
+}
