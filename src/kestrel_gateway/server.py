@@ -210,10 +210,15 @@ class KestrelGateway:
         tools = [Tool(**td) for td in TOOL_DEFINITIONS]
         gateway = self
 
-        async def handle_list_tools(_params):
+        async def handle_list_tools(*args):
             return ListToolsResult(tools=tools)
 
-        async def handle_call_tool(params: CallToolRequestParams):
+        async def handle_call_tool(*args):
+            params = args[-1] if args else None
+            if params is None:
+                return CallToolResult(
+                    content=[TextContent(type="text", text='{"error":"no params"}')]
+                )
             result = await gateway._handle_tool_call(params.name, params.arguments or {})
             return CallToolResult(
                 content=[TextContent(type="text", text=json.dumps(result, default=str))]
